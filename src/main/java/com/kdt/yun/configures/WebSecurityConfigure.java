@@ -47,7 +47,16 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .formLogin()
                     .defaultSuccessUrl("/")
                     .permitAll()
-                    .and();
+                    .and()
+                .rememberMe()
+                    .rememberMeParameter("remember-me")
+                    .tokenValiditySeconds(5 * 60)
+                    .alwaysRemember(true)
+                    .and()
+                .logout()
+                    .logoutUrl("/logout")
+                    .deleteCookies("JSESSIONID", "remember-me")
+                    .logoutSuccessUrl("/");
     }
 
     @Bean
