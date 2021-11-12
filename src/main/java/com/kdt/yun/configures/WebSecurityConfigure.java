@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Created by yunyun on 2021/11/11.
@@ -24,11 +25,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         //super.configure(auth);
         auth.inMemoryAuthentication()
                 .withUser("user")
-                .password("user123")
+                .password("{noop}user123")
                 .roles("USER");
         auth.inMemoryAuthentication()
                 .withUser("admin")
-                .password("admin123")
+                .password("{noop}admin123")
                 .roles("ADMIN");
     }
 
@@ -51,18 +52,21 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .rememberMe()
                     .rememberMeParameter("remember-me")
                     .tokenValiditySeconds(5 * 60)
-                    .alwaysRemember(true)
+                    //.alwaysRemember(true)
                     .and()
                 .logout()
-                    .logoutUrl("/logout")
-                    .deleteCookies("JSESSIONID", "remember-me")
-                    .logoutSuccessUrl("/");
+                    //.logoutUrl("/logout")
+                    //.deleteCookies("JSESSIONID", "remember-me")
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                    .logoutSuccessUrl("/")
+                    .invalidateHttpSession(true) // 기본 값이 true 이다.
+                    .clearAuthentication(true);  // 기본 값이 true 이다.
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return NoOpPasswordEncoder.getInstance();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder(){
+//        return NoOpPasswordEncoder.getInstance();
+//    }
 
 
 }
