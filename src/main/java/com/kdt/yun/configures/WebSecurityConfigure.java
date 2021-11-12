@@ -22,7 +22,6 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //super.configure(auth);
         auth.inMemoryAuthentication()
                 .withUser("user")
                 .password("{noop}user123")
@@ -52,21 +51,12 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .rememberMe()
                     .rememberMeParameter("remember-me")
                     .tokenValiditySeconds(5 * 60)
-                    //.alwaysRemember(true)
                     .and()
                 .logout()
-                    //.logoutUrl("/logout")
-                    //.deleteCookies("JSESSIONID", "remember-me")
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                     .logoutSuccessUrl("/")
                     .invalidateHttpSession(true) // 기본 값이 true 이다.
                     .clearAuthentication(true);  // 기본 값이 true 이다.
     }
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return NoOpPasswordEncoder.getInstance();
-//    }
-
 
 }
