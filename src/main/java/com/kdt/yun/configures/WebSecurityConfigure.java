@@ -56,7 +56,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                     .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                     .logoutSuccessUrl("/")
                     .invalidateHttpSession(true) // 기본 값이 true 이다.
-                    .clearAuthentication(true);  // 기본 값이 true 이다.
+                    .clearAuthentication(true) // 기본 값이 true 이다.
+                    .and()
+                .requiresChannel()
+                    .anyRequest().requiresSecure()
+        ;
     }
 
 }
