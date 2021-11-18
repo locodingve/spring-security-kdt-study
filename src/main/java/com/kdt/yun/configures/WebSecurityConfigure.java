@@ -3,7 +3,10 @@ package com.kdt.yun.configures;
 import org.apache.commons.io.file.NoopPathVisitor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +17,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yunyun on 2021/11/11.
@@ -40,11 +47,13 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .roles("ADMIN");
     }
 
-    public SecurityExpressionHandler<FilterInvocation> securityExpressionHandler() {
-        return new CustomWebSecurityExpressionHandler(
-                new AuthenticationTrustResolverImpl(),
-                "ROLE_"
-        );
+
+    @Bean
+    public AccessDecisionManager accessDecisionManager() {
+        List<AccessDecisionVoter<?>> voters = new ArrayList<>();
+        voters.add(new WebExpressionVoter());
+        voters.add(new OddAdminVoter(new AntPathRequestMatcher("/admin")));
+        return new UnanimousBased(voters);
     }
 
     @Override
@@ -57,9 +66,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     .antMatchers("/me").hasAnyRole("USER","ADMIN")
-                    .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN') and isOddAdmin()") // remember-me 허용 안함
+                    .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") // remember-me 허용 안함
                     .anyRequest().permitAll()
-                    .expressionHandler(securityExpressionHandler())
+                    .accessDecisionManager(accessDecisionManager())
                     .and()
                 .formLogin()
                     .defaultSuccessUrl("/")
