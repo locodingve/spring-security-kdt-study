@@ -3,13 +3,17 @@ package com.kdt.yun.configures;
 import org.apache.commons.io.file.NoopPathVisitor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -27,9 +31,20 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .password("{noop}user123")
                 .roles("USER");
         auth.inMemoryAuthentication()
-                .withUser("admin")
+                .withUser("admin01")
                 .password("{noop}admin123")
                 .roles("ADMIN");
+        auth.inMemoryAuthentication()
+                .withUser("admin02")
+                .password("{noop}admin123")
+                .roles("ADMIN");
+    }
+
+    public SecurityExpressionHandler<FilterInvocation> securityExpressionHandler() {
+        return new CustomWebSecurityExpressionHandler(
+                new AuthenticationTrustResolverImpl(),
+                "ROLE_"
+        );
     }
 
     @Override
@@ -42,8 +57,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                     .antMatchers("/me").hasAnyRole("USER","ADMIN")
-                    .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") // remember-me 허용 안함
+                    .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN') and isOddAdmin()") // remember-me 허용 안함
                     .anyRequest().permitAll()
+                    .expressionHandler(securityExpressionHandler())
                     .and()
                 .formLogin()
                     .defaultSuccessUrl("/")
@@ -61,6 +77,15 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                     .and()
                 .requiresChannel()
                     .anyRequest().requiresSecure()
+                    .and()
+                .sessionManagement()
+                    .sessionFixation().changeSessionId()
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .invalidSessionUrl("/")
+                    .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .and()
+                    .and()
         ;
     }
 
