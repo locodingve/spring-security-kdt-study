@@ -38,10 +38,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
 
-//    public WebSecurityConfigure(){
-//        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-//    }
-
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
@@ -58,32 +54,6 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .roles("ADMIN");
     }
 
-    @Bean
-    @Qualifier("myAsyncTaskExecutor")
-    public ThreadPoolTaskExecutor threadPoolExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);
-        executor.setMaxPoolSize(5);
-        executor.setThreadNamePrefix("my-executor-");
-        return executor;
-    }
-
-    @Bean
-    public DelegatingSecurityContextAsyncTaskExecutor taskExecutor (
-            @Qualifier("myAsyncTaskExecutor") AsyncTaskExecutor delegate
-    ) {
-        return new DelegatingSecurityContextAsyncTaskExecutor(delegate);
-    }
-
-
-    @Bean
-    public AccessDecisionManager accessDecisionManager() {
-        List<AccessDecisionVoter<?>> voters = new ArrayList<>();
-        voters.add(new WebExpressionVoter());
-        voters.add(new OddAdminVoter(new AntPathRequestMatcher("/admin")));
-        return new UnanimousBased(voters);
-    }
-
     @Override
     public void configure(WebSecurity web){
         web.ignoring().antMatchers("/assets/**");
@@ -96,7 +66,6 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                     .antMatchers("/me").hasAnyRole("USER","ADMIN")
                     .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") // remember-me 허용 안함
                     .anyRequest().permitAll()
-                    .accessDecisionManager(accessDecisionManager())
                     .and()
                 .formLogin()
                     .defaultSuccessUrl("/")
