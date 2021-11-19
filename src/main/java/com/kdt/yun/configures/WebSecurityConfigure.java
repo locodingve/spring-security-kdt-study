@@ -37,26 +37,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableWebSecurity
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
-
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user")
-                .password("{noop}user123")
-                .roles("USER");
-        auth.inMemoryAuthentication()
-                .withUser("admin01")
-                .password("{noop}admin123")
-                .roles("ADMIN");
-        auth.inMemoryAuthentication()
-                .withUser("admin02")
-                .password("{noop}admin123")
-                .roles("ADMIN");
-    }
-
     @Override
     public void configure(WebSecurity web){
-        web.ignoring().antMatchers("/assets/**");
+        web.ignoring().antMatchers("/assets/**", "/h2-console/**");
     }
 
     @Override

@@ -5,13 +5,33 @@ spring:
     cache: true
   security:
     user:
-      name: user
+      name: test-user
       password: user123
       roles: USER
   messages:
     basename: i18n/messages
     encoding: UTF-8
     cache-duration: PT1H
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: "jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1"
+    username: sa
+    password:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
+      pool-name: H2_DB
+  sql:
+    init:
+      platform: h2
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
+      encoding: UTF-8
+
 server:
   port: 443
   ssl:
