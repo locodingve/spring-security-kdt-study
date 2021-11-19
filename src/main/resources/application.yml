@@ -31,7 +31,6 @@ spring:
       schema-locations: classpath:sql/schema.sql
       data-locations: classpath:sql/data.sql
       encoding: UTF-8
-
 server:
   port: 443
   ssl:
