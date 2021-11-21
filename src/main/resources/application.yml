@@ -18,7 +18,7 @@ spring:
       enabled: true
   datasource:
     driver-class-name: org.h2.Driver
-    url: "jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1"
+    url: "jdbc:h2:mem:spring_security;MODE=MYSQL;DB_CLOSE_DELAY=-1"
     username: sa
     password:
     hikari:
@@ -28,8 +28,8 @@ spring:
   sql:
     init:
       platform: h2
-      schema-locations: classpath:sql/schema.sql
-      data-locations: classpath:sql/data.sql
+      schema-locations: classpath:sql/schema_new.sql
+      data-locations: classpath:sql/data_new.sql
       encoding: UTF-8
 server:
   port: 443
