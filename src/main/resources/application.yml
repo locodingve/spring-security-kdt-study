@@ -16,6 +16,10 @@ spring:
     console:
       path: /h2-console
       enabled: true
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: never
   jpa:
     database: h2
     open-in-view: false
@@ -29,7 +33,7 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
   datasource:
     driver-class-name: org.h2.Driver
-    url: "jdbc:h2:mem:spring_security;MODE=MYSQL;DB_CLOSE_DELAY=-1"
+    url: "jdbc:h2:file:./database/spring_security;MODE=MYSQL;DB_CLOSE_DELAY=-1"
     username: sa
     password:
     hikari:
@@ -39,7 +43,8 @@ spring:
   sql:
     init:
       platform: h2
-      schema-locations: classpath:sql/schema_new.sql
+      mode: always
+      schema-locations: classpath:sql/schema_new.sql, classpath:org/springframework/session/jdbc/schema-h2.sql
       data-locations: classpath:sql/data_new.sql
       encoding: UTF-8
 server:
