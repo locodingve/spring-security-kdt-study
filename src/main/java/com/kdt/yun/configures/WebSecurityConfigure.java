@@ -1,5 +1,7 @@
 package com.kdt.yun.configures;
 
+import com.kdt.yun.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,37 +24,16 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
-    private final DataSource dataSource;
+    private UserService userService;
 
-    public WebSecurityConfigure(DataSource dataSource) {
-        this.dataSource = dataSource;
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication()
-                .dataSource(dataSource)
-                .usersByUsernameQuery(
-                    "SELECT " +
-                        "login_id, passwd, true " +
-                    "FROM " +
-                        "USERS " +
-                    "WHERE " +
-                        "login_id = ?"
-                )
-                .groupAuthoritiesByUsername(
-                    "SELECT " +
-                        "u.login_id, g.name, p.name " +
-                    "FROM " +
-                        "users u " +
-                            "JOIN groups g ON u.group_id = g.id " +
-                            "LEFT JOIN group_permission gp ON g.id = gp.group_id " +
-                            "JOIN permissions p ON p.id = gp.permission_id " +
-                    "WHERE " +
-                        "u.login_id = ?"
-                )
-                .getUserDetailsService().setEnableAuthorities(false)
-        ;
+        auth.userDetailsService(userService);
     }
 
     @Override
